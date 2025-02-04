@@ -1,7 +1,17 @@
 plotHandednessDistribution <- function() {
   
+  # load demographics data:
   demographics <- read.csv('data/demographics.csv', stringsAsFactors = F)
-  hist(demographics$handedness_score, breaks=seq(-110,110,by=20),xlab='handedness score',ylab='frequency',main='',ax=F)
+  # exclude participants who didn't do the task:
+  demographics <- demographics[which(demographics$use == TRUE),]
+  # plot histogram:
+  hist(demographics$handedness_score, 
+       breaks=seq(-110,110,by=20),
+       xlab='handedness score',
+       ylab='frequency',
+       main='',
+       ax=F)
+  # add tick labels to X and Y axis
   axis(side=1,at=c(-100,-80,-60,-40,-20,0,20,40,60,80,100))
   axis(side=2,at=seq(0,15,by=5))
   
