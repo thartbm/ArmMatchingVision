@@ -86,3 +86,65 @@ plotDepvar <- function(depvar) {
   title(ylab=ylab)
   
 }
+
+
+
+# inspect file -----
+
+
+plotOneFile <- function(filename) {
+  
+  colors <- c('#000000',
+              '#FF0000',
+              '#00FF00',
+              '#0000FF',
+              '#FFFF00',
+              '#00FFFF',
+              '#FF00FF',
+              '#FF7700',
+              '#7700FF')
+  
+  
+  # load data from file:
+  df <- expandTrialInfo(filename)
+  # select reelevant rows:
+  df <- df[which(df$event_id == 'TASK_BUTTON_10_CLICKED'),]
+  
+  # determine scale of plot:
+  xrange <- range(c(df$rightX_m, df$leftX_m))
+  yrange <- range(c(df$rightY_m, df$leftY_m))
+  
+  xrange[1] <- min(xrange[1],-0.30)
+  xrange[2] <- max(xrange[2],0.30)
+  yrange[1] <- min(0, yrange[1])
+  yrange[2] <- max(0.30, yrange[2])
+  
+  
+  plot(-1000,-1000,
+       main='', xlab='x coordinate [m]', ylab='y coordinate [m]',
+       xlim=xrange, ylim=yrange, asp=1,
+       bty='n',ax=F)
+  
+  
+  for (condition in unique(df$trial_protocol)) {
+    
+    cdf <- df[which(df$trial_protocol == condition),]
+    col <- colors[condition]
+    
+    points( x = cdf$leftX_m,
+            y = cdf$leftY_m,
+            pch = 0,
+            col = col)
+    points( x = cdf$rightX_m,
+            y = cdf$rightY_m,
+            pch = 1,
+            col = col)
+    
+  }
+  
+  
+  
+  axis(side=1,at=c(-.3,-.2,-.1,0,.1,.2,.3))
+  axis(side=2,at=c(0,.1,.2,.3))
+  
+}
