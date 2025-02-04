@@ -275,6 +275,24 @@ convertData <- function(folders) {
   
 }
 
+# OSF data -----
+
+getData <- function() {
+  
+  
+  Reach::downloadOSFdata( repository = 'ftkw6',
+                          filelist = list('data' = c('simple_data.zip',
+                                                     'demographics.csv')),
+                          folder = 'data',
+                          
+                          overwrite = TRUE,
+                          unzip = TRUE,
+                          removezips = TRUE)
+  
+  
+  
+}
+
 
 # demographics - handedness -----
 
