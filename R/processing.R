@@ -31,7 +31,8 @@ getParticipantData <- function(ID,
         } else {
           
           # add the file
-          df <- read.csv(filename, stringsAsFactors = FALSE)
+          df <- expandTrialInfo(filename)
+          # df <- read.csv(filename, stringsAsFactors = FALSE)
           
           df <- df[which(df$event_id == 'TASK_BUTTON_10_CLICKED'),]
           df <- df[,!(names(df) %in% c('event_id'))]
@@ -74,6 +75,34 @@ getParticipantData <- function(ID,
   
 }
 
+
+expandTrialInfo <- function(filename) {
+  
+  df <- read.csv(filename, stringsAsFactors = FALSE)
+  
+  for (column in c('trial_no', 'trial_protocol')) {
+    
+    dc <- df[,column]
+    
+    cval <- NA
+    for (idx in c(1:length(dc))) {
+      if (is.na(dc[idx])) {
+        dc[idx] <- cval
+      } else {
+        cval <- dc[idx]
+      }
+      
+    }
+    
+    df[,column] <- dc
+    
+  }
+  
+  return(df)
+  
+  
+  
+}
 
 getParticipants <- function() {
   
