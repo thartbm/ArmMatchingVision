@@ -112,6 +112,7 @@ getParticipants <- function() {
   right <- right[which(right != 'right')]
   
   demographics <- read.csv('data/demographics.csv', stringsAsFactors = F)
+  demographics <- demographics[which(demographics$use == TRUE),]
   left  <- left[ which(left  %in% demographics$ID[which(demographics$handedness_score < 0)])]
   right <- right[which(right %in% demographics$ID[which(demographics$handedness_score > 0)])]
   
