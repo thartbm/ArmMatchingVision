@@ -142,6 +142,7 @@ getAllData <- function(outfile=NULL) {
   # groups  <- c('left',   'left',   'left',   'left',   'left',   'right',  'right',  'right',  'right',  'right' )
   
   df <- getParticipants()
+  # df <- df[which(df$use),] # already taken care of in getParticipants()
   IDs <- df$ID
   groups <- df$group
   
@@ -205,7 +206,7 @@ getMatchingDescriptor  <- function(descriptor='precision', grid.variables=c('dom
     outdata[combno,'group'] <- subdf$group[1]
     # get descriptors for the data on this combination:
     if (descriptor == 'precision') {
-      outdata[combno,descriptor] <- get95CIellipse(subdf, vars=c('devX_cm','devY_cm'))
+      outdata[combno,descriptor] <- get95CIellipse(subdf)
     }
     if (descriptor == 'accuracy') {
       outdata[combno,descriptor] <- mean(sqrt((subdf$devX_cm^2)+(subdf$devY_cm^2)))
@@ -218,13 +219,21 @@ getMatchingDescriptor  <- function(descriptor='precision', grid.variables=c('dom
 }
 
 
-get95CIellipse <- function(df, vars=NULL) {
+get95CIellipse <- function(df) {
   
-  if (!is.null(vars)) {
-    df <- df[, vars]
+  for (tpn in unique(df$trial_protocol)) {
+    idx <- which(df$trial_protocol == tpn)
+    df$devX_cm[idx] <- df$devX_cm[idx] - mean(df$devX_cm[idx])
+    df$devY_cm[idx] <- df$devY_cm[idx] - mean(df$devY_cm[idx])
   }
   
-  return(qnorm(0.975) * prod(princomp( df )$sdev) * pi)
+  df <- df[, c('devX_cm','devY_cm')]
+  
+  sdevs <- princomp( df )$sdev
+  
+  surface = qnorm(0.975) * prod(sdevs) * pi
+  
+  return(surface)
 
 }
 
