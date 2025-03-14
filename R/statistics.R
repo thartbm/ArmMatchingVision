@@ -1,5 +1,6 @@
 library(afex)
 
+
 customANOVA <- function(depvar='precision', indvars=c('dominant', 'matching_hand_seen')) {
   
   aov_data <- getMatchingDescriptor(grid.variables = indvars, descriptor = depvar)
@@ -27,6 +28,9 @@ noVisionANOVAs <- function() {
 # AOV data based ANOVAs ------
 
 dataANOVA <- function(depvar='precision', indvars=c('dominant', 'matching_hand_seen')) {
+  
+  # run this first, before you can read in the AOVdata.csv file
+  # saveFullDataFrame()
   
   aov_data <- read.csv('data/AOVdata.csv', stringsAsFactors = F)
   
