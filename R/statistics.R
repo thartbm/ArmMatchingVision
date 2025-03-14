@@ -34,6 +34,10 @@ dataANOVA <- function(depvar='precision', indvars=c('dominant', 'matching_hand_s
   
   aov_data <- read.csv('data/AOVdata.csv', stringsAsFactors = F)
   
+  if (!'matching_hand_seen' %in% indvars) {
+    aov_data <- aov_data[which(aov_data$matching_hand_seen == FALSE),]
+  }
+  
   aov_data$group <- as.factor(aov_data$group)
   
   print( afex::aov_ez( id = 'participant',
@@ -45,13 +49,13 @@ dataANOVA <- function(depvar='precision', indvars=c('dominant', 'matching_hand_s
   
 }
 
-bothDataANOVAs <- function() {
+bothDataANOVAs <- function(indvars=c('dominant', 'matching_hand_seen')) {
   
   for (depvar in c('accuracy', 'precision')) {
     
     cat(sprintf('*** ANOVA on %s:\n\n',toupper(depvar)))
     
-    dataANOVA(depvar=depvar)
+    dataANOVA(depvar=depvar, indvars=indvars)
     
   }
   
