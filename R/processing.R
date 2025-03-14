@@ -188,6 +188,11 @@ getMatchingDescriptor  <- function(descriptor='precision', grid.variables=c('dom
   
   outdata <- combinations
   outdata[,descriptor] <- NA
+  if (descriptor == 'precision') {
+    outdata$major <- NA
+    outdata$minor <- NA
+    outdata$slope <- NA
+  }
   outdata[,'group']      <- NA
   
   # loop through combinations:
@@ -206,7 +211,11 @@ getMatchingDescriptor  <- function(descriptor='precision', grid.variables=c('dom
     outdata[combno,'group'] <- subdf$group[1]
     # get descriptors for the data on this combination:
     if (descriptor == 'precision') {
-      outdata[combno,descriptor] <- get95CIellipse(subdf)
+      values <- get95CIellipse(subdf)
+      outdata[combno,descriptor] <- unname(values['surface'])
+      outdata[combno,'major']    <- unname(values['major'])
+      outdata[combno,'minor']    <- unname(values['minor'])
+      outdata[combno,'slope']    <- unname(values['slope'])
     }
     if (descriptor == 'accuracy') {
       outdata[combno,descriptor] <- mean(sqrt((subdf$devX_cm^2)+(subdf$devY_cm^2)))
@@ -229,11 +238,30 @@ get95CIellipse <- function(df) {
   
   df <- df[, c('devX_cm','devY_cm')]
   
-  sdevs <- princomp( df )$sdev
+  Z        <- as.matrix(df)
+  sdevs    <- princomp( Z )$sdev
   
-  surface = qnorm(0.975) * prod(sdevs) * pi
+  axes     <- unname(qnorm(0.95) * princomp( df )$sdev)
+  surface  <- prod(axes) * pi
   
-  return(surface)
+  
+  n <- nrow(Z)
+  m <- ncol(Z) - 1  # (no of independent variables)
+  # it's already centred...
+  # meanZ <- matrix(1, n, 1) %x% matrix(apply(Z, 2, mean), nrow=1, ncol=m+1)
+  # svdZ <- svd(Z - meanZ)
+  svdZ <- svd(Z)
+  V <- svdZ$v # eigen vectors
+  # coefficients (a) and intercept (b)
+  a <- -V[1:m, m+1] / V[m+1, m+1]
+  # the intercept is meaningless, since we removed the biases
+  b <- mean(Z %*% V[, m+1]) / V[m+1, m+1]
+  
+  
+  return(c('surface' = surface,
+           'major'   = max(axes),
+           'minor'   = min(axes),
+           'slope'   = a))
 
 }
 
